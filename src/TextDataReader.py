@@ -20,7 +20,9 @@ class TextDataReader(DataReader):
                     students[current] = []
                 else:
                     if current is None:
-                        raise ValueError("Дисциплина указана до имени студента")
+                        raise ValueError(
+                            "Дисциплина указана до имени студента"
+                        )
                     try:
                         subject, score = line.strip().split(":", 1)
                         students[current].append((subject.strip(), int(score)))
