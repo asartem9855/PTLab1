@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .CalcRating import CalcRating
 from .TextDataReader import TextDataReader
+from .YamlDataReader import YamlDataReader
 
 
 def get_path_from_arguments(args: list[str]) -> str:
@@ -18,9 +19,12 @@ def main(args=None) -> int:
 
     path = get_path_from_arguments(sys.argv[1:] if args is None else args)
     try:
-        if Path(path).suffix.lower() != ".txt":
-            raise ValueError("Поддерживается формат .txt")
-        students = TextDataReader().read(path)
+        readers = {".txt": TextDataReader, ".yaml": YamlDataReader,
+                   ".yml": YamlDataReader}
+        suffix = Path(path).suffix.lower()
+        if suffix not in readers:
+            raise ValueError("Поддерживаются форматы .txt, .yaml, .yml")
+        students = readers[suffix]().read(path)
         for name, rating in CalcRating(students).calc().items():
             print(f"{name}: {rating:.2f}")
     except (OSError, ValueError) as error:
