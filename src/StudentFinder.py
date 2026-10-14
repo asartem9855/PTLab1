@@ -10,6 +10,6 @@ class StudentFinder:
 
     def find(self) -> str | None:
         for name, subjects in self.data.items():
-            if all(score >= 90 for _, score in subjects):
+            if all(score == 90 for _, score in subjects):
                 return name
         return None
