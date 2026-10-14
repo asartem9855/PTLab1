@@ -1,0 +1,42 @@
+name: Lab 1 - tests and delivery
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pycodestyle src test
+      - run: python -m pytest --cov=src --cov-branch --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=95 --junitxml=junit.xml
+      - run: python -m src.main -p data/data.yaml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lab1-test-reports-${{ matrix.python }}
+          path: |
+            htmlcov/
+            coverage.xml
+            junit.xml
+  deliver:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: git archive --format=zip --output=lab1-variant9.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lab1-variant9
+          path: lab1-variant9.zip

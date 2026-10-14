@@ -6,6 +6,7 @@ from pathlib import Path
 from .CalcRating import CalcRating
 from .TextDataReader import TextDataReader
 from .YamlDataReader import YamlDataReader
+from .StudentFinder import StudentFinder
 
 
 def get_path_from_arguments(args: list[str]) -> str:
@@ -27,6 +28,11 @@ def main(args=None) -> int:
         students = readers[suffix]().read(path)
         for name, rating in CalcRating(students).calc().items():
             print(f"{name}: {rating:.2f}")
+        found = StudentFinder(students).find()
+        if found is None:
+            print("Студентов с 90 баллами по всем дисциплинам нет.")
+        else:
+            print(f"Студент с 90 баллами по всем дисциплинам: {found}")
     except (OSError, ValueError) as error:
         print(f"Ошибка: {error}", file=sys.stderr)
         return 1
